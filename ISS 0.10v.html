@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>寿司打</title>
+<style>
+    /* CSS スタイルは適切に設定する */
+    #secret-content {
+        display: none;
+    }
+    /* iFrameの親要素に対するスタイル */
+    .iframe-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+    }
+    /* iFrameのスタイル */
+    #yahoo-iframe, #secret-iframe {
+        width: 80%;
+        height: 80vh;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+    }
+</style>
+<script>
+    // 開発者ツールの検出とリダイレクト
+    function detectDevTools() {
+        const threshold = 160;
+        setInterval(() => {
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            if (widthThreshold || heightThreshold) {
+                window.location.href = 'https://google.co.jp';
+            }
+        }, 1000);
+    }
+    detectDevTools();
+
+    // 右クリックとキーボードショートカットの無効化
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I') || 
+            (event.ctrlKey && event.shiftKey && event.key === 'J') || 
+            (event.ctrlKey && event.key === 'U') ||
+            event.ctrlKey) {
+            event.preventDefault();
+        }
+    });
+</script>
+</head>
+<body>
+<script>
+    let shiftPressed = false;
+    let firstShiftTime = 0;
+    let secondShiftTime = 0;
+    let enterTime = 0;
+    let password = 'シークレット'; // パスワードをここで設定する
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Shift') {
+            if (!shiftPressed) {
+                firstShiftTime = new Date().getTime();
+                shiftPressed = true;
+            } else {
+                secondShiftTime = new Date().getTime();
+            }
+        } else if (event.key === 'Enter') {
+            enterTime = new Date().getTime();
+
+            if (shiftPressed && secondShiftTime - firstShiftTime <= 600 && enterTime - secondShiftTime <= 600) {
+                // 条件を満たした場合の処理
+                let userInput = prompt('パスワードを入力してください:');
+                if (userInput === password) {
+                    // 正解の場合は1.htmlをiFrameで表示する
+                    displaySecretContent();
+                } else {
+                    alert('パスワードが間違っています。');
+                }
+            }
+
+            // リセットする
+            shiftPressed = false;
+            firstShiftTime = 0;
+            secondShiftTime = 0;
+            enterTime = 0;
+        }
+    });
+
+    function displaySecretContent() {
+        // Yahooのiframeを非表示にし、1.htmlのコンテンツを表示する
+        document.getElementById('yahoo-iframe').style.display = 'none';
+        document.getElementById('secret-iframe').style.display = 'block';
+
+        // 履歴を削除する
+        history.replaceState(null, null, location.href);
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function () {
+            history.pushState(null, null, location.href);
+        });
+    }
+</script>
+
+<!-- iFrameの親要素 -->
+<div class="iframe-container">
+    <!-- Yahooページを表示するためのiframe -->
+    <iframe id="yahoo-iframe" src="https://sushida.net/"></iframe>
+    <!-- 1.htmlを表示するためのiframe -->
+    <iframe id="secret-iframe" src="1.html" style="display: none;"></iframe>
+</div>
+
+</body>
+</html>
